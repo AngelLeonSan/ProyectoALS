@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import {Box, Paper, TextField, Button, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, IconButton} from "@mui/material";
+import {Box, Paper, TextField, Button, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, IconButton, Tooltip} from "@mui/material";
 //Icono de eliminar
 import DeleteForeverIcon from "@mui/icons-material/DeleteForever";
 
@@ -44,7 +44,7 @@ export default function DashBoard() {
 
   //Cargamos los datos al montar el componente
   useEffect(() => {
-    listar
+    listar();
   }, [])
 
   //Funcion insertar
@@ -159,10 +159,11 @@ export default function DashBoard() {
             value={item.precio}
             onChange={(e) => setItem({ ...item, precio: Number(e.target.value) })}
           />
-
+          <Tooltip title="Insertar" placement="right" arrow>
           <Button variant="contained" type="submit" sx={{ mt: 2 }}>
             + Insertar
           </Button>
+          </Tooltip>
         </Box>
       </Paper>
 
@@ -194,9 +195,11 @@ export default function DashBoard() {
                 <TableRow key={row.id}>
                     {/*En la columna de acciones ponemos el boton borrar */}
                   <TableCell>
-                    <IconButton color="error" onClick={() => handleDelete(row.id)}>
-                      <DeleteForeverIcon />
-                    </IconButton>
+                    <Tooltip title="Eliminar" placement="right" arrow>
+                      <IconButton color="error" onClick={() => handleDelete(row.id)}>
+                        <DeleteForeverIcon />
+                      </IconButton>
+                    </Tooltip>
                   </TableCell>
                     {/*Mostramos los datos */}
                   <TableCell>{row.nombre}</TableCell>

@@ -15,27 +15,39 @@ export default function Login() {
 
   const [usuario , setUsuario] = useState(""); //Este y el de abajo son para almacenar los datos
   const [contra, setContra] = useState('');
-  const [msg, setMsg] = useState<'ok' | 'error'| ''>('');//Controlamos que alerta se muestra
+  const [msg, setMsg] = useState(false);//Controlamos que alerta se muestra
 
-  const handleLogin = (e: React.FormEvent) => {
-    e.preventDefault()//Evita que se recargue la pagina
+//Funcion que se encarga de conectar con la BD 
+  const handleLogin = async  (e: React.FormEvent) => {
+  e.preventDefault();
 
-    //Mostramos por consola el usuario y la contraseña como se pide
-    console.log("Usuario:", usuario);
-    console.log("Contraseña:", contra);
+  try {
+    //Le pedimos al servidor que nos envie la contraseña y el usuario
+    const respBack = await fetch(`http://localhost:3030/login?user=${usuario}&password=${contra}`);
+    //Convertimos la respuesta en json con los datos que nos ha devuelto e lback
+    const json = await respBack.json();
 
-    if(usuario === bdUsuario && contra === bdContra) {
-      setMsg('ok');
-      //Guardamos la info en redux antes de navegar
-      dispatch(Acciones.login({
-        name: usuario,
-        rol: "administrador"
-      }))
-      setTimeout(() => navigate('/home'), 900); // espera y nos navega a la otra pagina
+    //Comprobamos que json exista y que tenga la propiedad nombre
+    if (json && json.nombre) {
+      //Guardamos los datos del usuario que ha iniciado sesion
+      dispatch(
+        Acciones.login({
+          name: json.nombre,
+          rol: json.rol
+        })
+      );
+      //Comprobaciones 
+      setMsg(false);
+      navigate('/home');
     } else {
-      setMsg('error');
+      setMsg(true);
     }
-  };
+
+  } catch (err) {
+    console.error('Error conectando al servidor', err);
+    setMsg(true);
+  }
+};
 
   return (
     <>
@@ -82,18 +94,13 @@ export default function Login() {
               Inicio de sesion
             </Button>
 
-            {/* Alertas */}
-            {msg === "ok" && (
-              <Alert severity="success" sx={{ mt: 2 }}>
-                Datos correctos, se le permite acceder
-              </Alert>
-            )}
+            
 
-            {msg === "error" && (
+            {msg && (
               <Alert severity="error" sx={{ mt: 2 }}>
                 Usuario o contraseña incorrectos vuelva a intentarlo :3
               </Alert>
-            )}
+            )} 
           </Box>
         </Box>
       </Box>
